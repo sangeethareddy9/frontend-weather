@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Advanced Weather App</title>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container{
+            width: 380px;
+            margin: auto;
+            margin-top: 80px;
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px gray;
+        }
+
+        h1{
+            color: darkblue;
+        }
+
+        input{
+            width: 85%;
+            padding: 12px;
+            border-radius: 5px;
+            border: 1px solid gray;
+            font-size: 16px;
+        }
+
+        button{
+            padding: 10px 18px;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 15px;
+        }
+
+        button:hover{
+            background-color: darkblue;
+        }
+
+        #result{
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 10px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .history{
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .history h3{
+            color: darkgreen;
+        }
+
+        .city-item{
+            background-color: lightgray;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>🌦 Weather App</h1>
+
+        <input type="text"
+               id="city"
+               placeholder="Enter City Name">
+
+        <br>
+
+        <button onclick="getWeather()">
+            Get Weather
+        </button>
+
+        <div id="result"></div>
+
+        <div class="history">
+
+            <h3>Recent Searches</h3>
+
+            <div id="history"></div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // Load search history from local storage
+        let history =
+        JSON.parse(localStorage.getItem("cities")) || [];
+
+        showHistory();
+
+        // Async API Integration
+        async function getWeather(){
+
+            let city =
+            document.getElementById("city").value;
+
+            if(city == ""){
+
+                alert("Please Enter City Name");
+
+                return;
+
+            }
+
+            let url =
+            `https://wttr.in/${city}?format=j1`;
+
+            try{
+
+                let response =
+                await fetch(url);
+
+                let data =
+                await response.json();
+
+                let temp =
+                data.current_condition[0].temp_C;
+
+                let weather =
+                data.current_condition[0].weatherDesc[0].value;
+
+                let humidity =
+                data.current_condition[0].humidity;
+
+                // Display Weather Data
+                document.getElementById("result").innerHTML =
+
+                "<h2>" + city + "</h2>" +
+
+                "🌡 Temperature : "
+                + temp + " °C"
+                + "<br><br>" +
+
+                "☁ Weather : "
+                + weather
+                + "<br><br>" +
+
+                "💧 Humidity : "
+                + humidity + "%";
+
+                // Store city in local storage
+                history.push(city);
+
+                localStorage.setItem(
+                    "cities",
+                    JSON.stringify(history)
+                );
+
+                showHistory();
+
+            }
+
+            catch(error){
+
+                document.getElementById("result").innerHTML =
+
+                "❌ Error Loading Weather Data";
+
+            }
+
+        }
+
+        // Show Search History
+        function showHistory(){
+
+            let output = "";
+
+            for(let i=0; i<history.length; i++){
+
+                output = output +
+
+                "<div class='city-item'>"
+                + history[i] +
+                "</div>";
+
+            }
+
+            document.getElementById("history").innerHTML =
+            output;
+
+        }
+
+    </script>
+
+</body>
+
+</html>
